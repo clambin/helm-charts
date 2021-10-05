@@ -1,0 +1,63 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: "{{ include "covid19.fullname" . }}-loader"
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "covid19.labels" . | nindent 4 }}
+spec:
+  schedule: "{{ .Values.loader.schedule }}"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          volumes:
+          - name: config
+            configMap:
+              name: "{{ include "covid19.getConfigMap" . }}"
+          containers:
+          - name: loader
+            image: {{ .Values.loader.image.repository }}:{{ .Values.loader.image.tag | default .Chart.AppVersion }}
+            args:
+              - --config=/etc/covid19/covid19.yml
+            envFrom:
+              - secretRef:
+                  name: {{ include "covid19.getSecret" . }}
+            resources:
+              {{- toYaml .Values.handler.resources | nindent 14 }}
+            volumeMounts:
+            - name: config
+              mountPath: /etc/covid19
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: "{{ include "covid19.fullname" . }}-population-loader"
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "covid19.labels" . | nindent 4 }}
+spec:
+  schedule: "{{ .Values.populationLoader.schedule }}"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          volumes:
+          - name: config
+            configMap:
+              name: {{ include "covid19.getConfigMap" . }}
+          containers:
+          - name: loader
+            image: {{ .Values.populationLoader.image.repository }}:{{ .Values.populationLoader.image.tag | default .Chart.AppVersion }}
+            args:
+              - --config=/etc/covid19/covid19.yml
+            envFrom:
+              - secretRef:
+                  name: {{ include "covid19.getSecret" . }}
+            resources:
+              {{- toYaml .Values.handler.resources | nindent 14 }}
+            volumeMounts:
+            - name: config
+              mountPath: /etc/covid19

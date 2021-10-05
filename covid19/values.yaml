@@ -1,0 +1,53 @@
+# Default values for covid19.
+# This is a YAML-formatted file.
+
+replicaCount: 1
+
+secret: covid19-secret
+configMap: covid19-config
+
+handler:
+  image:
+    repository: ghcr.io/clambin/covid19-handler
+    tag: ""
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 30m
+      memory: 32Mi
+    #limits:
+    #  memory: 64Mi
+
+loader:
+  schedule: "* 6 * * *"
+  image:
+    repository: ghrc.io/clambin/covid19-loader
+    tag: ""
+    pullPolicy: IfNotPresent
+  resources: {}
+
+populationLoader:
+  schedule: "* 5 * * *"  
+  image:
+    repository: ghcr.io/clambin/covid19-population-loader
+    tag: ""
+    pullPolicy: IfNotPresent
+  resources: {}
+
+ingress:
+  enabled: false
+
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+
+service:
+  type: ClusterIP
+  port: 5000
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

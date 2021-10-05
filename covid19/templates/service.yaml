@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "covid19.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "covid19.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.port }}
+  selector:
+    {{- include "covid19.selectorLabels" . | nindent 4 }}
