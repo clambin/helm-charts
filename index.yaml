@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  covid19:
+  - apiVersion: v2
+    appVersion: 0.5.0
+    created: "2021-10-05T19:39:36.056005947Z"
+    description: Helm chart for clambin/covid19
+    digest: 4d618294df9acaaff1b4d165764a90ebaf57824aca12d66ebeaa35a4966d4b5d
+    name: covid19
+    type: application
+    urls:
+    - https://github.com/clambin/helm-charts/releases/download/covid19-0.2.0/covid19-0.2.0.tgz
+    version: 0.2.0
+generated: "2021-10-05T19:39:36.056010647Z"
