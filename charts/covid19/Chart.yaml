@@ -3,5 +3,5 @@ name: covid19
 description: Helm chart for clambin/covid19
 
 type: application
-version: 0.1.0
-appVersion: "0.5.0-rc1"
+version: 0.2.0
+appVersion: "0.5.0
