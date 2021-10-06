@@ -1,50 +1,96 @@
 # Default values for covid19.
 # This is a YAML-formatted file.
 
+# Number of covid19-handlers to run
+#
 replicaCount: 1
 
-secret: covid19-secret
+# Name of the configMap that contains the tado config file.  Defaults to <HelmReleaseName>-covid19-config
+# 
 configMap: covid19-config
 
+# Name of secret that contains any secrets referenced in the tado config file. Will be loaded as environment variables.
+#
+# Defauls to <HelmReleaseName>-covid19-secret.
+secret: covid19-secret
+
+# Handler implements a number of functions using in the Grafana dashboards
+#
 handler:
+  # covid19-handler container image
+  #
   image:
     repository: ghcr.io/clambin/covid19-handler
     tag: ""
     pullPolicy: IfNotPresent
-  resources:
-    requests:
-      cpu: 30m
-      memory: 32Mi
-    #limits:
-    #  memory: 64Mi
+  # Container resource requests and limits
+  #
+  resources: {}
+  # limits:
+  #   cpu: 10m
+  #   memory: 32Mi
+  # requests:
+  #   cpu: 10m
+  #   memory: 32Mi
 
+
+# Loader gets the latest COVID-19 figures and stores them in the database. Implemented as a CronJob.
+#
 loader:
+  # Crontab schedule to run covid19-loader. Defaults to 6am every day
+  #
   schedule: "0 6 * * *"
+  # covid19-loader container image
+  #
   image:
     repository: ghrc.io/clambin/covid19-loader
     tag: ""
     pullPolicy: IfNotPresent
+  # Container resource requests and limits
+  #
   resources: {}
 
+# PopulationLoader gets the latest population figures for each supported country and stores them in the database. Implemented as a CronJob.
+#
 populationLoader:
+  # Crontab schedule to run covid19-population-loader
+  #
   schedule: "0 5 * * *"  
+  # covid19-population-loader container image
+  #
   image:
     repository: ghcr.io/clambin/covid19-population-loader
     tag: ""
     pullPolicy: IfNotPresent
+  # Container resource requests and limits
+  #
   resources: {}
 
+# Override the app name.
+#
 nameOverride: ""
+
+# Override the default fully qualified app name.
+#
 fullnameOverride: ""
 
 podAnnotations: {}
 
+# Service configuration for covid19-handler
+#
 service:
   type: ClusterIP
   port: 5000
 
+# Node labels for pod assignment
+#
 nodeSelector: {}
 
+# Node tolerations for alertmanager scheduling to nodes with taints
+#
 tolerations: []
 
+# Pod affinity
+#
 affinity: {}
+
