@@ -43,7 +43,7 @@ loader:
   # covid19-loader container image
   #
   image:
-    repository: ghrc.io/clambin/covid19-loader
+    repository: ghcr.io/clambin/covid19-loader
     tag: ""
     pullPolicy: IfNotPresent
   # Container resource requests and limits
