@@ -18,9 +18,10 @@ spec:
               name: "{{ include "covid19.getConfigMap" . }}"
           containers:
           - name: loader
-            image: {{ .Values.loader.image.repository }}:{{ .Values.loader.image.tag | default .Chart.AppVersion }}
+            image: {{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
             args:
               - --config=/etc/covid19/covid19.yml
+              - loader
             envFrom:
               - secretRef:
                   name: {{ include "covid19.getSecret" . }}
@@ -50,9 +51,10 @@ spec:
               name: {{ include "covid19.getConfigMap" . }}
           containers:
           - name: loader
-            image: {{ .Values.populationLoader.image.repository }}:{{ .Values.populationLoader.image.tag | default .Chart.AppVersion }}
+            image: {{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
             args:
               - --config=/etc/covid19/covid19.yml
+              - population
             envFrom:
               - secretRef:
                   name: {{ include "covid19.getSecret" . }}

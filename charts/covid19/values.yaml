@@ -14,15 +14,13 @@ configMap: covid19-config
 # Defauls to <HelmReleaseName>-covid19-secret.
 secret: covid19-secret
 
-# Handler implements a number of functions using in the Grafana dashboards
-#
-handler:
-  # covid19-handler container image
-  #
-  image:
-    repository: ghcr.io/clambin/covid19-handler
+# Image 
+image:
+  repository: ghcr.io/clambin/covid19
     tag: ""
     pullPolicy: IfNotPresent
+
+handler:
   # Container resource requests and limits
   #
   resources: {}
@@ -40,14 +38,6 @@ loader:
   # Crontab schedule to run covid19-loader. Defaults to 6am every day
   #
   schedule: "0 6 * * *"
-  # covid19-loader container image
-  #
-  image:
-    repository: ghcr.io/clambin/covid19-loader
-    tag: ""
-    pullPolicy: IfNotPresent
-  # Container resource requests and limits
-  #
   resources: {}
 
 # PopulationLoader gets the latest population figures for each supported country and stores them in the database. Implemented as a CronJob.
@@ -56,14 +46,6 @@ populationLoader:
   # Crontab schedule to run covid19-population-loader
   #
   schedule: "0 5 * * *"  
-  # covid19-population-loader container image
-  #
-  image:
-    repository: ghcr.io/clambin/covid19-population-loader
-    tag: ""
-    pullPolicy: IfNotPresent
-  # Container resource requests and limits
-  #
   resources: {}
 
 # Override the app name.

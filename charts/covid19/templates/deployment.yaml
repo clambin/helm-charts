@@ -26,10 +26,11 @@ spec:
             name: {{ include "covid19.getConfigMap" . }}
       containers:
         - name: {{ .Chart.Name }}
-          image: "{{ .Values.handler.image.repository }}:{{ .Values.handler.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.handler.image.pullPolicy }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           args:
             - --config=/etc/covid19/covid19.yml
+            - handler
           envFrom:
             - secretRef:
                 name: {{ include "covid19.getSecret" . }}
