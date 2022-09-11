@@ -17,8 +17,8 @@ secret: covid19-secret
 # Image 
 image:
   repository: ghcr.io/clambin/covid19
-    tag: ""
-    pullPolicy: IfNotPresent
+  tag: ""
+  pullPolicy: IfNotPresent
 
 handler:
   # Container resource requests and limits
