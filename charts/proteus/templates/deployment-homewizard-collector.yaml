@@ -1,0 +1,82 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "proteus.fullname" . }}-homewizard-collector
+  labels:
+    {{- include "proteus.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ template "proteus.fullname" . }}
+      app.kubernetes.io/component: homewizard-collector
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ template "proteus.fullname" . }}
+        app.kubernetes.io/component: homewizard-collector
+        {{- with .Values.homewizard.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9100"
+        {{- with .Values.homewizard.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      restartPolicy: Always
+      {{- with .Values.homewizard.nodeSelector }}
+      nodeSelector:
+        {{- . | toYaml | nindent 8 }}
+      {{- end }}
+      {{- with .Values.homewizard.tolerations }}
+      tolerations:
+        {{- . | toYaml | nindent 8 }}
+      {{- end }}
+      {{- with .Values.homewizard.affinity }}
+      affinity:
+        {{- . | toYaml | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: proteus-homewizard-collector
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            - homewizard
+            - collect
+            - --redis.password=$(REDIS_PASSWORD)
+            {{- with .Values.homewizard.args }}
+            {{- toYaml . | nindent 12 }}
+            {{- end}}
+          envFrom:
+            - configMapRef:
+                name: {{ template "proteus.fullname" . }}-config
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.redis.credentials }}
+                  key: REDIS_PASSWORD
+            {{- with .Values.env }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: health
+              containerPort: 8080
+            - name: metrics
+              containerPort: 9100
+          {{- with .Values.homewizard.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.homewizard.startupProbe }}
+          startupProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.homewizard.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}

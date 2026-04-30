@@ -1,0 +1,87 @@
+{{- $root :=  . }}
+{{- range $index, $item := .Values.battery.batteries }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "proteus.fullname" $root }}-battery-{{ $index }}
+  labels:
+    {{- include "proteus.labels" $root | nindent 4 }}
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ template "proteus.fullname" $root }}
+      app.kubernetes.io/component: battery-{{ $index }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ template "proteus.fullname" $root }}
+        app.kubernetes.io/component: battery-{{ $index }}
+        {{- with $root.Values.battery.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9100"
+        {{- with $root.Values.battery.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      restartPolicy: Always
+      {{- with $root.Values.battery.nodeSelector }}
+      nodeSelector:
+        {{- . | toYaml | nindent 8 }}
+      {{- end }}
+      {{- with $root.Values.battery.tolerations }}
+      tolerations:
+        {{- . | toYaml | nindent 8 }}
+      {{- end }}
+      {{- with $root.Values.battery.affinity }}
+      affinity:
+        {{- . | toYaml | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: proteus-battery
+          image: {{ $root.Values.image.repository }}:{{ $root.Values.image.tag | default $root.Chart.AppVersion }}
+          imagePullPolicy: {{ $root.Values.image.pullPolicy }}
+          args:
+            - battery
+            - --redis.password=$(REDIS_PASSWORD)
+            - --battery.name={{ $item.name }}
+            - --battery.capacity={{ $item.capacity }}
+            - --battery.rate={{ $item.rate }}
+            {{- with $root.Values.battery.args }}
+            {{- toYaml . | nindent 12 }}
+            {{- end}}
+          envFrom:
+            - configMapRef:
+                name: {{ template "proteus.fullname" $root }}-config
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $root.Values.redis.credentials }}
+                  key: REDIS_PASSWORD
+            {{- with $root.Values.env }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: health
+              containerPort: 8080
+            - name: metrics
+              containerPort: 9100
+          {{- with $root.Values.battery.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with $root.Values.battery.startupProbe }}
+          startupProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with $root.Values.battery.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+{{- end }}

@@ -1,0 +1,111 @@
+{{- if .Values.tado.controller.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "proteus.fullname" . }}-tado-controller
+  labels:
+    {{- include "proteus.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ template "proteus.fullname" . }}
+      app.kubernetes.io/component: tado-controller
+  template:
+    metadata:
+      annotations:
+        prometheus.io/port: "9100"
+        prometheus.io/scrape: "true"
+        {{- with .Values.tado.controller.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        app.kubernetes.io/name: {{ template "proteus.fullname" . }}
+        app.kubernetes.io/component: tado-controller
+        {{- with .Values.tado.controller.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      restartPolicy: Always
+      {{- with .Values.tado.controller.nodeSelector }}
+      nodeSelector:
+        {{- . | toYaml | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tado.controller.tolerations }}
+      tolerations:
+        {{- . | toYaml | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tado.controller.affinity }}
+      affinity:
+        {{- . | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if .Values.tado.controller.rules.enabled }}
+      volumes:
+        - name: rules
+          {{- .Values.tado.controller.rules.volume | toYaml | nindent 10 }}
+      {{- end }}
+      containers:
+        - name: proteus-tado-controller
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            - tado
+            - controller
+            - --redis.password=$(REDIS_PASSWORD)
+            - --tado.controller.slack.token=$(SLACK_TOKEN)
+            - --tado.controller.slack.app-token=$(SLACK_APP_TOKEN)
+            {{- if .Values.tado.controller.rules.enabled }}
+            - --tado.controller.rules=/etc/proteus/tado/rules.yaml
+            {{- end }}
+            {{- with .Values.tado.controller.args }}
+            {{- toYaml . | nindent 12 }}
+            {{- end}}
+          envFrom:
+            - configMapRef:
+                name: {{ template "proteus.fullname" . }}-config
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.redis.credentials }}
+                  key: REDIS_PASSWORD
+            - name: SLACK_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.redis.credentials }}
+                  key: SLACK_TOKEN
+            - name: SLACK_APP_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.redis.credentials }}
+                  key: SLACK_APP_TOKEN
+            {{- with .Values.env }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- if .Values.tado.controller.rules.enabled }}
+          volumeMounts:
+            - mountPath: /etc/proteus/tado
+              name: rules
+          {{- end }}
+          ports:
+            - containerPort: 8080
+              name: health
+              protocol: TCP
+            - containerPort: 9100
+              name: metrics
+              protocol: TCP
+          {{- with .Values.tado.controller.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.tado.controller.startupProbe }}
+          startupProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.tado.controller.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+{{- end }}

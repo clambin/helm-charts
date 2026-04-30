@@ -1,0 +1,211 @@
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: tado-internals
+spec:
+  allowCrossNamespaceImport: true
+  folder: Proteus
+  instanceSelector:
+    matchLabels:
+      dashboards: local-grafana
+  json: |
+    {
+      "annotations": {
+        "list": [
+          {
+            "builtIn": 1,
+            "datasource": {
+              "type": "grafana",
+              "uid": "-- Grafana --"
+            },
+            "enable": true,
+            "hide": true,
+            "iconColor": "rgba(0, 211, 255, 1)",
+            "name": "Annotations \u0026 Alerts",
+            "type": "dashboard"
+          }
+        ]
+      },
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 0,
+      "id": 84,
+      "links": [],
+      "panels": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "dedx8669b0074d"
+          },
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 0
+          },
+          "id": 1,
+          "options": {
+            "dedupStrategy": "none",
+            "enableInfiniteScrolling": false,
+            "enableLogDetails": true,
+            "prettifyLogMessage": false,
+            "showCommonLabels": false,
+            "showLabels": false,
+            "showTime": false,
+            "sortOrder": "Descending",
+            "wrapLogMessage": false
+          },
+          "pluginVersion": "12.0.2",
+          "targets": [
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "dedx8669b0074d"
+              },
+              "direction": "backward",
+              "editorMode": "code",
+              "expr": "{app=\"proteus-tado-controller\"}",
+              "queryType": "range",
+              "refId": "A"
+            }
+          ],
+          "title": "logs",
+          "type": "logs"
+        },
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "dedx8669b0074d"
+          },
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 8
+          },
+          "id": 2,
+          "options": {
+            "dedupStrategy": "none",
+            "enableInfiniteScrolling": false,
+            "enableLogDetails": true,
+            "prettifyLogMessage": false,
+            "showCommonLabels": false,
+            "showLabels": false,
+            "showTime": false,
+            "sortOrder": "Descending",
+            "wrapLogMessage": false
+          },
+          "pluginVersion": "12.0.2",
+          "targets": [
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "dedx8669b0074d"
+              },
+              "direction": "backward",
+              "editorMode": "code",
+              "expr": "{app=\"proteus-tado-controller\"} |= `` | json | type = `home`",
+              "queryType": "range",
+              "refId": "A"
+            }
+          ],
+          "title": "home rules",
+          "type": "logs"
+        },
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "dedx8669b0074d"
+          },
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 16
+          },
+          "id": 3,
+          "options": {
+            "dedupStrategy": "none",
+            "enableInfiniteScrolling": false,
+            "enableLogDetails": true,
+            "prettifyLogMessage": false,
+            "showCommonLabels": false,
+            "showLabels": false,
+            "showTime": false,
+            "sortOrder": "Descending",
+            "wrapLogMessage": false
+          },
+          "pluginVersion": "12.0.2",
+          "targets": [
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "dedx8669b0074d"
+              },
+              "direction": "backward",
+              "editorMode": "code",
+              "expr": "{app=\"proteus-tado-controller\"} |= `` | json | zone =~ `^$zone$`",
+              "queryType": "range",
+              "refId": "A"
+            }
+          ],
+          "title": "zone rules: $zone",
+          "type": "logs"
+        }
+      ],
+      "preload": false,
+      "refresh": "1m",
+      "schemaVersion": 41,
+      "tags": [
+        "grope"
+      ],
+      "templating": {
+        "list": [
+          {
+            "current": {
+              "text": "All",
+              "value": "$__all"
+            },
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "definition": "label_values(proteus_tado_zone_heating_percentage,zone_name)",
+            "includeAll": true,
+            "name": "zone",
+            "options": [],
+            "query": {
+              "qryType": 1,
+              "query": "label_values(proteus_tado_zone_heating_percentage,zone_name)",
+              "refId": "PrometheusVariableQueryEditor-VariableQuery"
+            },
+            "refresh": 1,
+            "regex": "",
+            "sort": 1,
+            "type": "query"
+          }
+        ]
+      },
+      "time": {
+        "from": "now-1h",
+        "to": "now"
+      },
+      "timepicker": {},
+      "timezone": "",
+      "title": "tado internals",
+      "uid": "a3c29cd7-2ffd-4085-8635-e284a1c3377b",
+      "version": 1
+    }
+    

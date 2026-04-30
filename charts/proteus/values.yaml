@@ -1,0 +1,227 @@
+# Default values for proteus.
+# This is a YAML-formatted file.
+
+# This is to override the chart name.
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  repository: codeberg.org/clambin/proteus
+  # This sets the pull policy for images.
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+dashboards:
+  install: true
+redis:
+  image:
+    repository: redis
+    pullPolicy: IfNotPresent
+    tag: 8.6.2-alpine
+  credentials: proteus
+redis_exporter:
+  image:
+    repository: bitnami/redis-exporter
+    pullPolicy: IfNotPresent
+    tag: latest
+env: []
+log:
+  format: json
+  level: info
+prom:
+  addr: :9100
+  path: /metrics
+health:
+  addr: :8080
+  path: /healthz
+homewizard:
+  interval: 30s
+  addr: http://192.168.0.188/
+  args: []
+  podLabels: {}
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  resources:
+    requests:
+      cpu: 5m
+      memory: 16Mi
+    limits:
+      memory: 32Mi
+  startupProbe:
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    failureThreshold: 6
+    httpGet:
+      path: /healthz
+      port: health
+  livenessProbe:
+    periodSeconds: 10
+    failureThreshold: 6
+    httpGet:
+      path: /healthz
+      port: health
+battery:
+  batteries: []
+    #- name: large
+    #  capacity: 10000
+  #  rate: 5000
+  args: [ ]
+  podLabels: {}
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  resources:
+    requests:
+      cpu: 5m
+      memory: 16Mi
+    limits:
+      memory: 32Mi
+  startupProbe:
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    failureThreshold: 6
+    httpGet:
+      path: /healthz
+      port: health
+  livenessProbe:
+    periodSeconds: 10
+    failureThreshold: 6
+    httpGet:
+      path: /healthz
+      port: health
+solaredge:
+  credentials: proteus
+  collector:
+    interval: 5m
+    args: []
+    podLabels: { }
+    podAnnotations: { }
+    nodeSelector: { }
+    tolerations: [ ]
+    affinity: { }
+    resources:
+      limits:
+        memory: 32Mi
+      requests:
+        cpu: 5m
+        memory: 16Mi
+    startupProbe:
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      failureThreshold: 50
+      httpGet:
+        path: /healthz
+        port: health
+    livenessProbe:
+      periodSeconds: 300
+      failureThreshold: 3
+      httpGet:
+        path: /healthz
+        port: health
+  store:
+    enabled: true
+    args: []
+    podLabels: { }
+    podAnnotations: { }
+    nodeSelector: { }
+    tolerations: [ ]
+    affinity: { }
+    resources: {}
+    startupProbe: {}
+    livenessProne: {}
+  web:
+    replicas: 1
+    args: []
+    podLabels: { }
+    podAnnotations: { }
+    nodeSelector: { }
+    tolerations: [ ]
+    affinity: { }
+    resources: {}
+    startupProbe: {}
+    livenessProne: {}
+    httpRoute:
+      enabled: true
+      parentRefs:
+        - name: traefik-gateway
+          namespace: traefik
+          sectionName: web
+      hostnames: []
+tado:
+  collector:
+    interval: 5m
+    args: []
+    podLabels: { }
+    podAnnotations: { }
+    nodeSelector: { }
+    tolerations: [ ]
+    affinity: { }
+    resources:
+      limits:
+        memory: 32Mi
+      requests:
+        cpu: 5m
+        memory: 16Mi
+    startupProbe:
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      failureThreshold: 30
+      httpGet:
+        path: /healthz
+        port: health
+    livenessProbe:
+      periodSeconds: 10
+      failureThreshold: 30
+      httpGet:
+        path: /healthz
+        port: health
+  controller:
+    enabled: true
+    args: []
+    rules:
+      enabled: false
+      volume:
+        configMap:
+          name: tado-rules
+    podLabels: { }
+    podAnnotations: { }
+    nodeSelector: { }
+    tolerations: [ ]
+    affinity: { }
+    resources:
+      limits:
+        memory: 32Mi
+      requests:
+        cpu: 5m
+        memory: 16Mi
+    startupProbe:
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      failureThreshold: 30
+      httpGet:
+        path: /healthz
+        port: health
+    livenessProbe:
+      periodSeconds: 10
+      failureThreshold: 30
+      httpGet:
+        path: /healthz
+        port: health
+watchdog:
+  enabled: true
+  channels: "tado:10m,solaredge:10m,homewizard:1m"
+  alertmanager: http://localhost:9093
+  interval: 1m
+  args: []
+  startupProbe: {}
+  livenessProbe: {}
+  podAnnotations: {}
+  podLabels: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  resources: {}

@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "proteus.fullname" . }}-config
+  labels:
+    {{- include "proteus.labels" . | nindent 4 }}
+data:
+  PROTEUS_LOG_FORMAT: {{ .Values.log.format | default "json" | quote }}
+  PROTEUS_LOG_LEVEL: {{ .Values.log.level | default "info" | quote }}
+  PROTEUS_PROM_ADDR: {{ .Values.prom.addr | default ":9100" | quote }}
+  PROTEUS_PROM_PATH: {{ .Values.prom.path | default "/metrics" | quote }}
+  PROTEUS_REDIS_ADDR: {{ tpl (printf "%s-redis:6379" (include "proteus.fullname" .)) . | quote }}
+  PROTEUS_HEALTH_ADDR: {{ .Values.health.addr | default ":8080" | quote }}
+  PROTEUS_HEALTH_PATH: {{ .Values.health.path | default "/healthz" | quote }}
+  PROTEUS_HOMEWIZARD_INTERVAL: {{ .Values.homewizard.interval | default "30s" | quote }}
+  PROTEUS_HOMEWIZARD_ADDR: {{ .Values.homewizard.addr | quote }}
+  PROTEUS_SOLAREDGE_COLLECTOR_INTERVAL: {{ .Values.solaredge.collector.interval | default "5m" | quote }}
+  PROTEUS_TADO_COLLECTOR_INTERVAL: {{ .Values.tado.collector.interval | default "5m" | quote }}
+  PROTEUS_TADO_CONTROLLER_RULES: "/etc/proteus/tado/rules.yaml"

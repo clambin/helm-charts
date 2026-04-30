@@ -1,0 +1,90 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "proteus.fullname" . }}-solaredge-collector
+  labels:
+      {{- include "proteus.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ template "proteus.fullname" . }}
+      app.kubernetes.io/component: solaredge-collector
+  template:
+    metadata:
+      annotations:
+        prometheus.io/port: "9100"
+        prometheus.io/scrape: "true"
+      {{- with .Values.solaredge.collector.podAnnotations }}
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        app.kubernetes.io/name: {{ template "proteus.fullname" . }}
+        app.kubernetes.io/component: solaredge-collector
+      {{- with .Values.solaredge.collector.podLabels }}
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      restartPolicy: Always
+      {{- with .Values.solaredge.collector.nodeSelector }}
+      nodeSelector:
+        {{- . | toYaml | nindent 8 }}
+      {{- end }}
+      {{- with .Values.solaredge.collector.tolerations }}
+      tolerations:
+        {{- . | toYaml | nindent 8 }}
+      {{- end }}
+      {{- with .Values.solaredge.collector.affinity }}
+      affinity:
+        {{- . | toYaml | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: proteus-solaredge-collector
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            - solaredge
+            - collect
+            - --redis.password=$(REDIS_PASSWORD)
+            - --solaredge.key=$(SOLAREDGE_KEY)
+            {{- with .Values.solaredge.collector.args }}
+            {{- toYaml . | nindent 12 }}
+            {{- end}}
+          envFrom:
+            - configMapRef:
+                name: {{ template "proteus.fullname" . }}-config
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.redis.credentials }}
+                  key: REDIS_PASSWORD
+            - name: SOLAREDGE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.solaredge.credentials }}
+                  key: SOLAREDGE_KEY
+            {{- with .Values.env }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - containerPort: 8080
+              name: health
+              protocol: TCP
+            - containerPort: 9100
+              name: metrics
+              protocol: TCP
+          {{- with .Values.solaredge.collector.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.solaredge.collector.startupProbe }}
+          startupProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.solaredge.collector.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
