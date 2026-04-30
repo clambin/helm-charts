@@ -171,4 +171,15 @@ entries:
     urls:
     - https://github.com/clambin/helm-charts/releases/download/covid19-0.2.0/covid19-0.2.0.tgz
     version: 0.2.0
-generated: "2023-04-19T23:33:50.049567581Z"
+  proteus:
+  - apiVersion: v2
+    appVersion: 0.6.6
+    created: "2026-04-30T08:56:09.026383416Z"
+    description: Collection of home automation tools
+    digest: 36045e0eda883dd8b7b8070acaef75ea503214cf115f7eb89c46a06569d846c4
+    name: proteus
+    type: application
+    urls:
+    - https://github.com/clambin/helm-charts/releases/download/proteus-0.7.0/proteus-0.7.0.tgz
+    version: 0.7.0
+generated: "2026-04-30T08:56:09.026452815Z"
