@@ -1,6 +1,6 @@
 {{- if .Values.dashboards.install }}
 {{- range $path, $_ :=  .Files.Glob "dashboards/*.yaml" }}
 ---
-{{ tpl ($.Files.Get $path) $ }}
+{{ $.Files.Get $path }}
 {{- end }}
 {{- end }}
