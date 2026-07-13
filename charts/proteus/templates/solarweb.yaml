@@ -1,0 +1,112 @@
+{{- if .Values.solarweb.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "proteus.fullname" . }}-solarweb
+  labels:
+    {{- include "proteus.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      {{- include "proteus.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: solarweb
+  template:
+    metadata:
+      labels:
+        {{- include "proteus.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: solarweb
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: {{ .Values.solarweb.ports.prometheus | default ":9100" | splitList ":" | last | quote }}
+    spec:
+      restartPolicy: Always
+      {{- with .Values.solarweb.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: proteus-solarweb
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            - solarweb
+            {{- with .Values.solarweb.args }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          envFrom:
+            - secretRef:
+                name: {{ .Values.secretName | default (include "proteus.fullname" .) }}
+          ports:
+            - name: health
+              containerPort: {{ .Values.solarweb.ports.health | default ":8888" | splitList ":" | last | int }}
+            - name: metrics
+              containerPort: {{ .Values.solarweb.ports.prometheus | default ":9100" | splitList ":" | last | int }}
+            - name: web
+              containerPort: {{ .Values.solarweb.ports.web | default ":8080" | splitList ":" | last | int }}
+          resources:
+            {{- toYaml .Values.solarweb.resources | nindent 12 }}
+          {{- with .Values.solarweb.startupProbe }}
+          startupProbe:
+            {{- toYaml . | nindent 12 }}
+            httpGet:
+              path: {{ $.Values.config.health.path }}
+              port: health
+          {{- end }}
+          {{- with .Values.solarweb.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+            httpGet:
+              path: {{ $.Values.config.health.path }}
+              port: health
+          {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "proteus.fullname" . }}-solarweb
+  labels:
+    {{- include "proteus.labels" . | nindent 4 }}
+spec:
+  ports:
+  - name: web
+    port: {{ .Values.solarweb.ports.web | default ":8080" | splitList ":" | last | int }}
+    protocol: TCP
+    targetPort: web
+  selector:
+    {{- include "proteus.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: solarweb
+  sessionAffinity: None
+  type: ClusterIP
+{{- if .Values.ingress.enabled }}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ include "proteus.fullname" . }}-solarweb
+  labels:
+    {{- include "proteus.labels" . | nindent 4 }}
+spec:
+  hostnames:
+  - {{ .Values.ingress.hostname }}
+  parentRefs:
+  - group: gateway.networking.k8s.io
+    kind: Gateway
+    name: {{ .Values.ingress.gateway.name }}
+    namespace: {{ .Values.ingress.gateway.namespace }}
+    sectionName: web
+  rules:
+  - backendRefs:
+    - group: ""
+      kind: Service
+      name: {{ include "proteus.fullname" . }}-solarweb
+      port: {{ .Values.solarweb.ports.web | default ":8080" | splitList ":" | last | int }}
+      weight: 1
+    matches:
+    - path:
+        type: PathPrefix
+        value: /
+{{- end }}
+{{- end }}

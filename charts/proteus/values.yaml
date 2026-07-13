@@ -12,216 +12,125 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
+# Name of the secret containing credentials.
+# The following keys are expected in the secret:
+#   PROTEUS_CLIMATE_CONTROLLER_SLACK_APPTOKEN: Slack App token
+#   PROTEUS_CLIMATE_CONTROLLER_SLACK_TOKEN: Slack token
+#   PROTEUS_COMPONENTS_SOLAREDGE_KEY: SolarEdge site key
+#   PROTEUS_COMPONENTS_TADO_PASSPHRASE: Tadoº token encryptuon passphrase
+#   PROTEUS_SOLAR_STORE_DB: Postgres connection string (e.g., postgres://user:password@postgres:5432/database?sslmode=disable)
+secretName: ""
+
 dashboards:
   install: true
-redis:
-  image:
-    repository: redis
-    pullPolicy: IfNotPresent
-    tag: 8.6.2-alpine
-  credentials: proteus
-redis_exporter:
-  image:
-    repository: bitnami/redis-exporter
-    pullPolicy: IfNotPresent
-    tag: latest
-env: []
-log:
-  format: json
-  level: info
-prom:
-  addr: :9100
-  path: /metrics
-health:
-  addr: :8080
-  path: /healthz
-homewizard:
-  interval: 30s
-  addr: http://192.168.0.188/
-  args: []
-  podLabels: {}
-  podAnnotations: {}
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
+
+persistence:
+  enabled: false
+  claimName: proteus-data
+  # storageClass: "-"
+  # accessMode: ReadWriteOnce
+  # size: 1Gi
+
+ingress:
+  enabled: false
+  # hostname: ingress hostname
+  gateway:
+    name: traefik-gateway
+    namespace: traefik
+
+# Heating rules configuration
+# This allows mounting external rules from a ConfigMap or Secret.
+rules:
+  configMap: proteus-heating-rules
+  # secret: proteus-heating-rules
+
+# Server configuration
+server:
+  args:
+    - --config=/etc/proteus/config.yaml
   resources:
+    limits:
+      memory: 128Mi
     requests:
       cpu: 5m
-      memory: 16Mi
-    limits:
-      memory: 32Mi
+      memory: 64Mi
+  nodeSelector: {}
   startupProbe:
     initialDelaySeconds: 5
     periodSeconds: 10
     failureThreshold: 6
-    httpGet:
-      path: /healthz
-      port: health
   livenessProbe:
     periodSeconds: 10
     failureThreshold: 6
-    httpGet:
-      path: /healthz
-      port: health
-battery:
-  batteries: []
-    #- name: large
-    #  capacity: 10000
-  #  rate: 5000
-  args: [ ]
-  podLabels: {}
-  podAnnotations: {}
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
-  resources:
-    requests:
-      cpu: 5m
-      memory: 16Mi
-    limits:
-      memory: 32Mi
-  startupProbe:
-    initialDelaySeconds: 5
-    periodSeconds: 10
-    failureThreshold: 6
-    httpGet:
-      path: /healthz
-      port: health
-  livenessProbe:
-    periodSeconds: 10
-    failureThreshold: 6
-    httpGet:
-      path: /healthz
-      port: health
-solaredge:
-  credentials: proteus
-  collector:
-    interval: 5m
-    args: []
-    podLabels: { }
-    podAnnotations: { }
-    nodeSelector: { }
-    tolerations: [ ]
-    affinity: { }
-    resources:
-      limits:
-        memory: 32Mi
-      requests:
-        cpu: 5m
-        memory: 16Mi
-    startupProbe:
-      initialDelaySeconds: 5
-      periodSeconds: 10
-      failureThreshold: 50
-      httpGet:
-        path: /healthz
-        port: health
-    livenessProbe:
-      periodSeconds: 300
-      failureThreshold: 3
-      httpGet:
-        path: /healthz
-        port: health
-  store:
-    enabled: true
-    args: []
-    podLabels: { }
-    podAnnotations: { }
-    nodeSelector: { }
-    tolerations: [ ]
-    affinity: { }
-    resources: {}
-    startupProbe: {}
-    livenessProne: {}
-  web:
-    replicas: 1
-    args: []
-    podLabels: { }
-    podAnnotations: { }
-    nodeSelector: { }
-    tolerations: [ ]
-    affinity: { }
-    resources: {}
-    startupProbe: {}
-    livenessProne: {}
-    httpRoute:
-      enabled: true
-      parentRefs:
-        - name: traefik-gateway
-          namespace: traefik
-          sectionName: web
-      hostnames: []
-tado:
-  collector:
-    interval: 5m
-    args: []
-    podLabels: { }
-    podAnnotations: { }
-    nodeSelector: { }
-    tolerations: [ ]
-    affinity: { }
-    resources:
-      limits:
-        memory: 32Mi
-      requests:
-        cpu: 5m
-        memory: 16Mi
-    startupProbe:
-      initialDelaySeconds: 5
-      periodSeconds: 10
-      failureThreshold: 30
-      httpGet:
-        path: /healthz
-        port: health
-    livenessProbe:
-      periodSeconds: 10
-      failureThreshold: 30
-      httpGet:
-        path: /healthz
-        port: health
-  controller:
-    enabled: true
-    args: []
-    rules:
-      enabled: false
-      volume:
-        configMap:
-          name: tado-rules
-    podLabels: { }
-    podAnnotations: { }
-    nodeSelector: { }
-    tolerations: [ ]
-    affinity: { }
-    resources:
-      limits:
-        memory: 32Mi
-      requests:
-        cpu: 5m
-        memory: 16Mi
-    startupProbe:
-      initialDelaySeconds: 5
-      periodSeconds: 10
-      failureThreshold: 30
-      httpGet:
-        path: /healthz
-        port: health
-    livenessProbe:
-      periodSeconds: 10
-      failureThreshold: 30
-      httpGet:
-        path: /healthz
-        port: health
-watchdog:
+
+# SolarWeb configuration
+solarweb:
   enabled: true
-  channels: "tado:10m,solaredge:10m,homewizard:1m"
-  alertmanager: http://localhost:9093
-  interval: 1m
-  args: []
-  startupProbe: {}
-  livenessProbe: {}
-  podAnnotations: {}
-  podLabels: {}
+  args:
+    - --db=$(PROTEUS_SOLAR_STORE_DB)
+  ports:
+    web: ":8080"
+    health: ":8888"
+    prometheus: ":9100"
+  resources:
+    requests:
+      cpu: 5m
+      memory: 32Mi
   nodeSelector: {}
-  tolerations: []
-  affinity: {}
-  resources: {}
+  startupProbe:
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    failureThreshold: 6
+  livenessProbe:
+    periodSeconds: 10
+    failureThreshold: 6
+
+config:
+  log:
+    level: info
+    format: json
+  prometheus:
+    addr: ":9100"
+    path: /metrics
+  health:
+    addr: ":8888"
+    path: /healthz
+  grid:
+    enabled: true
+    type: homewizard
+    interval: 30s
+  battery:
+    enabled: true
+    type: sigenergy
+    interval: 30s
+  solar:
+    enabled: true
+    type: solaredge
+    interval: 1m
+    store:
+      enabled: true
+      db: postgres://user:password@postgres:5432/database?sslmode=disable
+      interval: 15m
+  climate:
+    enabled: true
+    type: tado
+    interval: 1m
+    controller:
+      enabled: true
+      rules: /etc/proteus/heating/rules.yaml
+      slack:
+        #token: <slack-token>
+        #apptoken: <slack-app-token>
+  watchdog:
+    enabled: false
+    #alertmanager: "http://alertmanager:9093"
+  components:
+    homewizard:
+      #addr: "http://192.168.0.188"
+    sigenergy:
+      #addr: "192.168.0.239:502"
+    solaredge:
+      #key: "<SITE-KEY>"
+    tado:
+      storage: /data
+      #passphrase: "<PASSPHRASE>"

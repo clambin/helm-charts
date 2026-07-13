@@ -1,0 +1,92 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "proteus.fullname" . }}-server
+  labels:
+    {{- include "proteus.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      {{- include "proteus.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: server
+  template:
+    metadata:
+      labels:
+        {{- include "proteus.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: server
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: {{ .Values.config.prometheus.addr | default ":9100" | splitList ":" | last | quote }}
+        checksum/config: {{ include (print $.Template.BasePath "/configuration.yaml") . | sha256sum }}
+    spec:
+      restartPolicy: Always
+      {{- with .Values.server.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        {{- if .Values.persistence.enabled }}
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.claimName }}
+        {{- end }}
+        - name: config
+          configMap:
+            name: proteus-config
+        {{- if or .Values.rules.configMap .Values.rules.secret }}
+        - name: rules
+          {{- if .Values.rules.configMap }}
+          configMap:
+            name: {{ .Values.rules.configMap }}
+          {{- else if .Values.rules.secret }}
+          secret:
+            secretName: {{ .Values.rules.secret }}
+          {{- end }}
+        {{- end }}
+      containers:
+        - name: proteus-server
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            - server
+            {{- with .Values.server.args }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          envFrom:
+            - secretRef:
+                name: {{ .Values.secretName | default (include "proteus.fullname" .) }}
+          ports:
+            - name: health
+              containerPort: {{ .Values.config.health.addr | default ":8080" | splitList ":" | last | int }}
+            - name: metrics
+              containerPort: {{ .Values.config.prometheus.addr | default ":9100" | splitList ":" | last | int }}
+          resources:
+            {{- toYaml .Values.server.resources | nindent 12 }}
+          {{- with .Values.server.startupProbe }}
+          startupProbe:
+            {{- toYaml . | nindent 12 }}
+            httpGet:
+              path: {{ $.Values.config.health.path }}
+              port: health
+          {{- end }}
+          {{- with .Values.server.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+            httpGet:
+              path: {{ $.Values.config.health.path }}
+              port: health
+          {{- end }}
+          volumeMounts:
+            {{- if .Values.persistence.enabled }}
+            - name: data
+              mountPath: /data
+            {{- end }}
+            - name: config
+              mountPath: /etc/proteus
+            {{- if and .Values.config.climate .Values.config.climate.controller .Values.config.climate.controller.rules }}
+            - name: rules
+              mountPath: {{ .Values.config.climate.controller.rules | dir }}
+            {{- end }}
