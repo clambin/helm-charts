@@ -10,5 +10,5 @@ data:
     {{- if and $config.climate $config.climate.controller (not (or .Values.rules.configMap .Values.rules.secret)) }}
     {{- $_ := unset $config.climate.controller "rules" }}
     {{- end }}
-    {{- $config | mustToYaml | nindent 4 }}
+    {{- $config | toYaml | nindent 4 }}
 ---

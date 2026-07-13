@@ -55,6 +55,10 @@ spec:
             {{- with .Values.server.args }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
+          {{- with .Values.server.env }}
+          env:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           envFrom:
             - secretRef:
                 name: {{ .Values.secretName | default (include "proteus.fullname" .) }}

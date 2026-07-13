@@ -48,6 +48,7 @@ rules:
 server:
   args:
     - --config=/etc/proteus/config.yaml
+  env: []
   resources:
     limits:
       memory: 128Mi
@@ -72,6 +73,7 @@ solarweb:
     web: ":8080"
     health: ":8888"
     prometheus: ":9100"
+  env: []
   resources:
     requests:
       cpu: 5m
