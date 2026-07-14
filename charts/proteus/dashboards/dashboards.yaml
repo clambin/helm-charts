@@ -31,7 +31,7 @@ spec:
       "editable": true,
       "fiscalYearStartMonth": 0,
       "graphTooltip": 0,
-      "id": 116,
+      "id": 126,
       "links": [],
       "panels": [
         {
@@ -723,7 +723,7 @@ spec:
       "timezone": "browser",
       "title": "Energy",
       "uid": "ch4gfbj",
-      "version": 16,
+      "version": 1,
       "weekStart": ""
     }
   resyncPeriod: 10m0s
@@ -760,7 +760,7 @@ spec:
       "editable": true,
       "fiscalYearStartMonth": 0,
       "graphTooltip": 0,
-      "id": 117,
+      "id": 127,
       "links": [],
       "panels": [
         {
@@ -2206,7 +2206,7 @@ spec:
       "timezone": "browser",
       "title": "Heating",
       "uid": "chz58l2",
-      "version": 11,
+      "version": 1,
       "weekStart": ""
     }
   resyncPeriod: 10m0s
@@ -2243,7 +2243,7 @@ spec:
       "editable": true,
       "fiscalYearStartMonth": 0,
       "graphTooltip": 0,
-      "id": 122,
+      "id": 125,
       "links": [],
       "panels": [
         {
@@ -2815,7 +2815,7 @@ spec:
       "timezone": "browser",
       "title": "Internal - go metrics",
       "uid": "chfnv7b",
-      "version": 3,
+      "version": 1,
       "weekStart": ""
     }
   resyncPeriod: 10m0s
@@ -2852,7 +2852,7 @@ spec:
       "editable": true,
       "fiscalYearStartMonth": 0,
       "graphTooltip": 0,
-      "id": 119,
+      "id": 124,
       "links": [],
       "panels": [
         {
@@ -3029,7 +3029,7 @@ spec:
                 "uid": "PBFA97CFB590B2093"
               },
               "editorMode": "code",
-              "expr": "avg (rate(proteus_scraper_http_requests_total{namespace=~\"^$namespace$\"}[$__rate_interval])) by (code)",
+              "expr": "avg (rate(proteus_scraper_http_requests_total{namespace=~\"^$namespace$\",application=~\"^$application$\"}[$__rate_interval])) by (code)",
               "legendFormat": "{{code}}",
               "range": true,
               "refId": "A"
@@ -3193,7 +3193,7 @@ spec:
       "timezone": "browser",
       "title": "Internal - scrape clients",
       "uid": "ch42bzz",
-      "version": 13,
+      "version": 2,
       "weekStart": ""
     }
   resyncPeriod: 10m0s
@@ -3230,7 +3230,7 @@ spec:
       "editable": true,
       "fiscalYearStartMonth": 0,
       "graphTooltip": 0,
-      "id": 118,
+      "id": 128,
       "links": [],
       "panels": [
         {
@@ -3891,7 +3891,7 @@ spec:
       "timezone": "browser",
       "title": "Solar Panels",
       "uid": "chm885m",
-      "version": 3,
+      "version": 1,
       "weekStart": ""
     }
   resyncPeriod: 10m0s
