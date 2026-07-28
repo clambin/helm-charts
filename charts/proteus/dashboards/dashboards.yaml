@@ -2887,7 +2887,7 @@ spec:
                 }
               },
               "mappings": [],
-              "unit": "reqps"
+              "unit": "short"
             },
             "overrides": []
           },
@@ -3193,7 +3193,7 @@ spec:
       "timezone": "browser",
       "title": "Internal - scrape clients",
       "uid": "ch42bzz",
-      "version": 2,
+      "version": 5,
       "weekStart": ""
     }
   resyncPeriod: 10m0s
