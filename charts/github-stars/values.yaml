@@ -1,0 +1,41 @@
+# Default values for proteus.
+# This is a YAML-formatted file.
+
+# This is to override the chart name.
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  repository: ghcr.io/clambin/github-stars
+  # This sets the pull policy for images.
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+persistence:
+  claimName: github-stars
+
+server:
+  user: ""
+  # Override the default credentials secret name. Default is fullname
+  # The secret must contain the following keys:
+  # - github.token
+  # - github.webhook.secret
+  # - slack.webHook
+  credentials: ""
+
+deployment:
+  args: []
+  resources:
+    requests:
+      cpu: 10m
+      memory: 24Mi
+    limits:
+      memory: 40Mi
+
+httproute:
+  hostnames: []
+  gateway:
+    name: traefik-gateway
+    namespace: traefik
+    sectionName: websecure
