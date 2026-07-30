@@ -1,0 +1,19 @@
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: planit
+spec:
+  parentRefs:
+    {{- with .Values.httproute.parentRefs }}
+    {{- toYaml . | nindent 4}}
+    {{- end }}
+  hostnames: {{ .Values.httproute.hostnames | default (list) | toJson }}
+  rules:
+  - backendRefs:
+    - name: planit
+      port: 8080
+    filters:
+      {{- with .Values.httproute.filters }}
+      {{- toYaml . | nindent 6}}
+      {{- end }}

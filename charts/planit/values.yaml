@@ -1,0 +1,26 @@
+image:
+  registry: codeberg.org
+  repository: clambin/planit
+  tag: ""
+  pullPolicy: IfNotPresent
+
+database:
+  existingSecret: ""
+  urlKey: "PG_URL"
+
+env: []
+
+args: []
+
+httproute:
+  hostnames: []
+  parentRefs:
+    - name: traefik-gateway
+      namespace: traefik
+      sectionName: websecure
+  filters:
+    - type: ExtensionRef
+      extensionRef:
+        group: traefik.io
+        kind: Middleware
+        name: forward-auth

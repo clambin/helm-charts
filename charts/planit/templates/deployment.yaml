@@ -1,0 +1,46 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: planit
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: planit
+  template:
+    metadata:
+      labels:
+        app: planit
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9100"
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: planit
+          image: {{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            {{- with .Values.env }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+            {{- if not .Values.database.existingSecret }}
+            {{ fail "database.existingSecret must be specified" }}
+            {{- end }}
+            - name: PG_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.existingSecret }}
+                  key: {{ .Values.database.urlKey }}
+          args: {{ .Values.args | default (list) | toJson }}
+          ports:
+          - name: metrics
+            containerPort: 9100
+          - name: app
+            containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
