@@ -182,6 +182,17 @@ entries:
     urls:
     - https://github.com/clambin/helm-charts/releases/download/github-stars-0.1.0/github-stars-0.1.0.tgz
     version: 0.1.0
+  planit:
+  - apiVersion: v2
+    appVersion: 0.3.3
+    created: "2026-07-30T21:13:42.491521709Z"
+    description: Basic activity scheduler
+    digest: 15d6a803e275a3426dd2abdef6809507d2acd2e81510a7470abbe28c836b488a
+    name: planit
+    type: application
+    urls:
+    - https://github.com/clambin/helm-charts/releases/download/planit-0.1.0/planit-0.1.0.tgz
+    version: 0.1.0
   proteus:
   - apiVersion: v2
     appVersion: 0.8.2
@@ -263,4 +274,4 @@ entries:
     urls:
     - https://github.com/clambin/helm-charts/releases/download/proteus-0.7.0/proteus-0.7.0.tgz
     version: 0.7.0
-generated: "2026-07-30T12:06:51.600518051Z"
+generated: "2026-07-30T21:13:42.491561308Z"
