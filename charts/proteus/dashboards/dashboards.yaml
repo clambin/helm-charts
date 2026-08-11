@@ -731,7 +731,7 @@ spec:
 apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDashboard
 metadata:
-  name: heating
+  name: climate
 spec:
   allowCrossNamespaceImport: true
   contentCacheDuration: 0s
@@ -823,7 +823,7 @@ spec:
                 "uid": "PBFA97CFB590B2093"
               },
               "editorMode": "code",
-              "expr": "avg(proteus_heating_outside_temperature{namespace=\"$namespace\"})",
+              "expr": "avg(proteus_climate_outside_temperature{namespace=\"$namespace\"})",
               "legendFormat": "__auto",
               "range": true,
               "refId": "A"
@@ -884,7 +884,7 @@ spec:
           "targets": [
             {
               "editorMode": "code",
-              "expr": "avg(proteus_heating_solar_intensity{namespace=\"$namespace\"})",
+              "expr": "avg(proteus_climate_solar_intensity{namespace=\"$namespace\"})",
               "legendFormat": "__auto",
               "range": true,
               "refId": "A"
@@ -954,7 +954,7 @@ spec:
                 "uid": "PBFA97CFB590B2093"
               },
               "editorMode": "code",
-              "expr": "avg(proteus_heating_zone_temperature{zone=~\"^$room$\",namespace=~\"^$namespace$\"}) by (zone)",
+              "expr": "avg(proteus_climate_zone_temperature{zone=~\"^$room$\",namespace=~\"^$namespace$\"}) by (zone)",
               "format": "time_series",
               "interval": "",
               "legendFormat": "{{zone_name}}",
@@ -1037,7 +1037,7 @@ spec:
                 "uid": "PBFA97CFB590B2093"
               },
               "editorMode": "code",
-              "expr": "avg(proteus_heating_zone_heating{zone=~\"^$room$\",namespace=~\"^$namespace$\"}) by (zone)",
+              "expr": "avg(proteus_climate_zone_heating{zone=~\"^$room$\",namespace=~\"^$namespace$\"}) by (zone)",
               "interval": "",
               "legendFormat": "{{zone_name}}",
               "queryType": "randomWalk",
@@ -1130,7 +1130,7 @@ spec:
                 "uid": "PBFA97CFB590B2093"
               },
               "editorMode": "code",
-              "expr": "avg(proteus_heating_zone_manual{zone=~\"^$room$\",namespace=~\"^$namespace$\"}) by (zone)",
+              "expr": "avg(proteus_climate_zone_manual{zone=~\"^$room$\",namespace=~\"^$namespace$\"}) by (zone)",
               "interval": "",
               "legendFormat": "{{zone_name}}",
               "queryType": "randomWalk",
@@ -1211,7 +1211,7 @@ spec:
                 "uid": "PBFA97CFB590B2093"
               },
               "editorMode": "code",
-              "expr": "avg(proteus_heating_user_state{namespace=~\"^$namespace$\"}) by (user)",
+              "expr": "avg(proteus_climate_user_state{namespace=~\"^$namespace$\"}) by (user)",
               "interval": "",
               "legendFormat": "{{zone_name}}",
               "queryType": "randomWalk",
@@ -1280,7 +1280,7 @@ spec:
               },
               "editorMode": "code",
               "exemplar": false,
-              "expr": "sum (proteus_heating_weather_state{namespace=~\"^$namespace$\"}) by (state) == 1",
+              "expr": "sum (proteus_climate_weather_state{namespace=~\"^$namespace$\"}) by (state) == 1",
               "format": "table",
               "instant": true,
               "interval": "",
@@ -1520,7 +1520,7 @@ spec:
                 "uid": "PBFA97CFB590B2093"
               },
               "editorMode": "code",
-              "expr": "avg (proteus_heating_weather_state{namespace=~\"^$namespace$\"}) by (state) == 1",
+              "expr": "avg (proteus_climate_weather_state{namespace=~\"^$namespace$\"}) by (state) == 1",
               "interval": "",
               "legendFormat": "__auto",
               "queryType": "randomWalk",
@@ -1589,7 +1589,7 @@ spec:
               },
               "editorMode": "code",
               "exemplar": false,
-              "expr": "proteus_heating_home_state{namespace=~\"^$namespace$\"} == 1",
+              "expr": "proteus_climate_home_state{namespace=~\"^$namespace$\"} == 1",
               "format": "table",
               "instant": true,
               "interval": "",
@@ -1724,7 +1724,7 @@ spec:
                 "uid": "PBFA97CFB590B2093"
               },
               "editorMode": "code",
-              "expr": "avg (proteus_heating_home_state{namespace=~\"^$namespace$\"} == 1) by (state)",
+              "expr": "avg (proteus_climate_home_state{namespace=~\"^$namespace$\"} == 1) by (state)",
               "interval": "",
               "legendFormat": "{{proteus_tado_weather}}",
               "queryType": "randomWalk",
@@ -1880,7 +1880,7 @@ spec:
                 "uid": "PBFA97CFB590B2093"
               },
               "editorMode": "code",
-              "expr": "avg(proteus_heating_zone_target_temperature{zone=~\"^$room$\",namespace=~\"^$namespace$\"}) by (zone)",
+              "expr": "avg(proteus_climate_zone_target_temperature{zone=~\"^$room$\",namespace=~\"^$namespace$\"}) by (zone)",
               "interval": "",
               "legendFormat": "Target",
               "queryType": "randomWalk",
@@ -1893,7 +1893,7 @@ spec:
                 "uid": "PBFA97CFB590B2093"
               },
               "editorMode": "code",
-              "expr": "avg(proteus_heating_zone_temperature{zone=~\"^$room$\",namespace=~\"^$namespace$\"}) by (zone)",
+              "expr": "avg(proteus_climate_zone_temperature{zone=~\"^$room$\",namespace=~\"^$namespace$\"}) by (zone)",
               "interval": "",
               "legendFormat": "Temperature",
               "queryType": "randomWalk",
@@ -1906,7 +1906,7 @@ spec:
                 "uid": "PBFA97CFB590B2093"
               },
               "editorMode": "code",
-              "expr": "avg(proteus_heating_zone_heating{zone=~\"^$room$\",namespace=~\"^$namespace$\"}) by (zone)",
+              "expr": "avg(proteus_climate_zone_heating{zone=~\"^$room$\",namespace=~\"^$namespace$\"}) by (zone)",
               "interval": "",
               "legendFormat": "Heating",
               "queryType": "randomWalk",
@@ -2025,7 +2025,7 @@ spec:
                 "uid": "PBFA97CFB590B2093"
               },
               "editorMode": "code",
-              "expr": "avg(proteus_heating_zone_humidity{zone=~\"^$room$\",namespace=~\"^$namespace$\"})",
+              "expr": "avg(proteus_climate_zone_humidity{zone=~\"^$room$\",namespace=~\"^$namespace$\"})",
               "hide": false,
               "interval": "",
               "legendFormat": "Humidity",
@@ -2039,7 +2039,7 @@ spec:
                 "uid": "PBFA97CFB590B2093"
               },
               "editorMode": "code",
-              "expr": "avg(proteus_heating_zone_open_window_remaining{zone=\"$room\",namespace=~\"^$namespace$\"})",
+              "expr": "avg(proteus_climate_zone_open_window_remaining{zone=\"$room\",namespace=~\"^$namespace$\"})",
               "hide": false,
               "interval": "",
               "legendFormat": "Open Window",
@@ -2110,7 +2110,7 @@ spec:
                 "uid": "PBFA97CFB590B2093"
               },
               "editorMode": "code",
-              "expr": "avg(proteus_heating_device_battery_state{zone=~\"^$room$\"})",
+              "expr": "avg(proteus_climate_device_battery_state{zone=~\"^$room$\"})",
               "interval": "",
               "legendFormat": "Battery",
               "queryType": "randomWalk",
@@ -2136,7 +2136,7 @@ spec:
                 "uid": "PBFA97CFB590B2093"
               },
               "editorMode": "code",
-              "expr": "avg(proteus_heating_device_connection_state{zone=~\"^$room$\"})",
+              "expr": "avg(proteus_climate_device_connection_state{zone=~\"^$room$\"})",
               "hide": false,
               "interval": "",
               "legendFormat": "Connection",
@@ -2162,13 +2162,13 @@ spec:
               "text": "proteus-dev",
               "value": "proteus-dev"
             },
-            "definition": "label_values(proteus_heating_outside_temperature,namespace)",
+            "definition": "label_values(proteus_climate_outside_temperature,namespace)",
             "description": "",
             "name": "namespace",
             "options": [],
             "query": {
               "qryType": 1,
-              "query": "label_values(proteus_heating_outside_temperature,namespace)",
+              "query": "label_values(proteus_climate_outside_temperature,namespace)",
               "refId": "PrometheusVariableQueryEditor-VariableQuery"
             },
             "refresh": 1,
@@ -2181,7 +2181,7 @@ spec:
               "text": "All",
               "value": "$__all"
             },
-            "definition": "label_values(proteus_heating_zone_temperature,zone)",
+            "definition": "label_values(proteus_climate_zone_temperature,zone)",
             "description": "",
             "includeAll": true,
             "label": "Room",
@@ -2189,7 +2189,7 @@ spec:
             "options": [],
             "query": {
               "qryType": 1,
-              "query": "label_values(proteus_heating_zone_temperature,zone)",
+              "query": "label_values(proteus_climate_zone_temperature,zone)",
               "refId": "PrometheusVariableQueryEditor-VariableQuery"
             },
             "refresh": 1,
@@ -2204,7 +2204,7 @@ spec:
       },
       "timepicker": {},
       "timezone": "browser",
-      "title": "Heating",
+      "title": "Climate",
       "uid": "chz58l2",
       "version": 1,
       "weekStart": ""
