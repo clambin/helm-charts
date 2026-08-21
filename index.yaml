@@ -195,6 +195,16 @@ entries:
     version: 0.1.0
   proteus:
   - apiVersion: v2
+    appVersion: 0.8.3
+    created: "2026-08-21T10:43:54.618787759Z"
+    description: Collection of home automation tools
+    digest: bb6f4faef2ee2c89cb3efe6124d295f506d3297bf2a77dbc93ba5554b60c01b6
+    name: proteus
+    type: application
+    urls:
+    - https://github.com/clambin/helm-charts/releases/download/proteus-0.8.7/proteus-0.8.7.tgz
+    version: 0.8.7
+  - apiVersion: v2
     appVersion: 0.8.2
     created: "2026-08-11T09:35:56.297265716Z"
     description: Collection of home automation tools
@@ -284,4 +294,4 @@ entries:
     urls:
     - https://github.com/clambin/helm-charts/releases/download/proteus-0.7.0/proteus-0.7.0.tgz
     version: 0.7.0
-generated: "2026-08-11T09:35:56.297362059Z"
+generated: "2026-08-21T10:43:54.618874862Z"
