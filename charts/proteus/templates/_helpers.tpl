@@ -35,7 +35,6 @@ Common labels
 */}}
 {{- define "proteus.labels" -}}
 helm.sh/chart: {{ include "proteus.chart" . }}
-{{ include "proteus.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -43,20 +42,35 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
 {{/*
-Selector labels
+Prometheus listener port
 */}}
-{{- define "proteus.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "proteus.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
+{{- define "ports.prometheus"}}
+{{- int (last (splitList ":" (default .Values.config.prometheus.addr ":9090"))) }}
 {{- end }}
 
 {{/*
-Create the name of the service account to use
+Healthz listener port
 */}}
-{{- define "proteus.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create }}
-{{- default (include "proteus.fullname" .) .Values.serviceAccount.name }}
-{{- else }}
-{{- default "default" .Values.serviceAccount.name }}
+{{- define "ports.healthz"}}
+{{- int (last (splitList ":" (default .Values.config.health.addr ":8888"))) }}
+{{- end }}
+
+{{/*
+Solar Web listener port
+*/}}
+{{- define "ports.solar.web"}}
+{{- int (last (splitList ":" (default .Values.config.apps.solar.web.addr ":8080"))) }}
+{{- end }}
+
+{{/*
+Environment variable definitions for credentials stored in secret(s)
+*/}}
+{{- define "proteus.credentialsEnv" }}
+{{- range $envName, $ref := .Values.secretRefs.keys }}
+- name: {{ $envName }}
+  valueFrom:
+    secretKeyRef:
+      name: {{ default $.Values.secretRefs.secret (index $ref "secret") }}
+      key: {{ $ref.key }}
 {{- end }}
 {{- end }}

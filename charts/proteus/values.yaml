@@ -12,127 +12,158 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
-# Name of the secret containing credentials.
-# The following keys are expected in the secret:
-#   PROTEUS_CLIMATE_CONTROLLER_SLACK_APPTOKEN: Slack App token
-#   PROTEUS_CLIMATE_CONTROLLER_SLACK_TOKEN: Slack token
-#   PROTEUS_COMPONENTS_SOLAREDGE_KEY: SolarEdge site key
-#   PROTEUS_COMPONENTS_TADO_PASSPHRASE: Tadoº token encryptuon passphrase
-#   PROTEUS_SOLAR_STORE_DB: Postgres connection string (e.g., postgres://user:password@postgres:5432/database?sslmode=disable)
-secretName: ""
+redis:
+  repository: redis
+  tag: 8.10.2
 
 dashboards:
   install: true
 
-persistence:
-  enabled: false
-  claimName: proteus-data
-  # storageClass: "-"
-  # accessMode: ReadWriteOnce
-  # size: 1Gi
+storage:
+  redisData:
+    type: emptyDir
+    persistentVolumeClaim: { }
+
+secretRefs:
+  secret: proteus-credentials
+  keys:
+    REDIS_PASSWORD:
+      key: REDIS_PASSWORD
+      #secret: proteus-credentials
+    SOLAREDGE_KEY:
+      key: SOLAREDGE_KEY
+      #secret: proteus-credentials
+    SOLAR_STORE_DB:
+      key: SOLAR_STORE_DB
+      #secret: proteus-credentials
+    SOLAR_WEB_DB:
+      key: SOLAR_WEB_DB
+      #secret: proteus-credentials
+    CLIMATE_BOT_SLACK_TOKEN:
+      key: CLIMATE_BOT_SLACK_TOKEN
+      #secret: proteus-credentials
+    CLIMATE_BOT_SLACK_APP_TOKEN:
+      key: CLIMATE_BOT_SLACK_APP_TOKEN
+      #secret: proteus-credentials
+    CLIMATE_CONTROLLER_SLACK_TOKEN:
+      key: CLIMATE_CONTROLLER_SLACK_TOKEN
+      #secret: proteus-credentials
+
+commonEnv: []
+
+servers:
+  redis:
+    redis:
+      nodeSelector: {}
+      livenessProbe: { }
+      #  httpGet:
+      #    path: /healthz
+      #    port: 8888
+      resources: {}
+      #  requests:
+      #    cpu: 10m
+      #    memory: 30Mi
+    exporter:
+      nodeSelector: {}
+      livenessProbe: { }
+      resources: {}
+  collectors:
+    nodeSelector: {}
+    livenessProbe: {}
+    resources: {}
+  climate:
+    bot:
+      nodeSelector: {}
+      livenessProbe: {}
+      resources: {}
+    controller:
+      nodeSelector: {}
+      livenessProbe: {}
+      resources: {}
+  solar:
+    store:
+      nodeSelector: {}
+      livenessProbe: {}
+      resources: {}
+    web:
+      nodeSelector: {}
+      livenessProbe: {}
+      resources: {}
+  watchdog:
+    nodeSelector: {}
+    livenessProbe: {}
+    resources: {}
 
 ingress:
-  enabled: false
-  # hostname: ingress hostname
-  gateway:
-    name: traefik-gateway
-    namespace: traefik
+  solar:
+    web:
+      enabled: false
+      hostnames: []
+      gateway:
+        name: traefik-gateway
+        namespace: traefik
+        section: web
 
-# Heating rules configuration
-# This allows mounting external rules from a ConfigMap or Secret.
-rules:
-  configMap: proteus-heating-rules
-  # secret: proteus-heating-rules
-
-# Server configuration
-server:
-  args:
-    - --config=/etc/proteus/config.yaml
-  env: []
-  resources:
-    limits:
-      memory: 128Mi
-    requests:
-      cpu: 5m
-      memory: 64Mi
-  nodeSelector: {}
-  startupProbe:
-    initialDelaySeconds: 5
-    periodSeconds: 10
-    failureThreshold: 6
-  livenessProbe:
-    periodSeconds: 10
-    failureThreshold: 6
-
-# SolarWeb configuration
-solarweb:
-  enabled: true
-  args:
-    - --db=$(PROTEUS_SOLAR_STORE_DB)
-  ports:
-    web: ":8080"
-    health: ":8888"
-    prometheus: ":9100"
-  env: []
-  resources:
-    requests:
-      cpu: 5m
-      memory: 32Mi
-  nodeSelector: {}
-  startupProbe:
-    initialDelaySeconds: 5
-    periodSeconds: 10
-    failureThreshold: 6
-  livenessProbe:
-    periodSeconds: 10
-    failureThreshold: 6
 
 config:
   log:
     level: info
     format: json
   prometheus:
-    addr: ":9100"
+    addr: :9090
     path: /metrics
   health:
-    addr: ":8888"
+    addr: :8888
     path: /healthz
-  grid:
-    enabled: true
-    type: homewizard
-    interval: 30s
-  battery:
-    enabled: true
-    type: sigenergy
-    interval: 30s
-  solar:
-    enabled: true
-    type: solaredge
-    interval: 1m
-    store:
-      enabled: true
-      db: postgres://user:password@postgres:5432/database?sslmode=disable
-      interval: 15m
-  climate:
-    enabled: true
-    type: tado
-    interval: 1m
-    controller:
-      enabled: true
-      rules: /etc/proteus/heating/rules.yaml
-      slack:
-        #token: <slack-token>
-        #apptoken: <slack-app-token>
-  watchdog:
-    enabled: false
-    #alertmanager: "http://alertmanager:9093"
-  components:
+  redis:
+    addr: proteus-redis:6379
+    password: ${REDIS_PASSWORD}
+  devices:
     homewizard:
-      #addr: "http://192.168.0.188"
+      addr: ""
     sigenergy:
-      #addr: "192.168.0.239:502"
-    solaredge:
-      #key: "<SITE-KEY>"
-    tado:
-      storage: /data
-      #passphrase: "<PASSPHRASE>"
+      addr: ""
+    solarEdge:
+      key: ${SOLAREDGE_KEY}
+  collectors:
+    grid:
+      enabled: true
+      type: homewizard
+      interval: 30s
+    battery:
+      enabled: true
+      type: sigenergy
+      interval: 30s
+    climate:
+      enabled: true
+      type: tado
+      interval: 5m
+    solar:
+      enabled: true
+      type: solaredge
+      interval: 1m
+  apps:
+    solar:
+      store:
+        enabled: true
+        db: ${SOLAR_STORE_DB}
+      web:
+        enabled: true
+        addr: :8080
+        db: ${SOLAR_WEB_DB}
+    climate:
+      bot:
+        enabled: true
+        slack:
+          token: ${CLIMATE_BOT_SLACK_TOKEN}
+          appToken: ${CLIMATE_BOT_SLACK_APP_TOKEN}
+      controller:
+        enabled: true
+        slackToken: ${CLIMATE_CONTROLLER_SLACK_TOKEN}
+        rules:
+          home: []
+          zones: {}
+  watchdog:
+    enabled: true
+    alertmanager: http://prometheus-alertmanager.monitoring.svc:9093
+    threshold: 5

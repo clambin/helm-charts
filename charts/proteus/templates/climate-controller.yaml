@@ -1,0 +1,57 @@
+{{- if .Values.config.apps.climate.controller.enabled }}
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: proteus-climate-controller
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: proteus
+      app.kubernetes.io/component: climate-controller
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: proteus
+        app.kubernetes.io/component: climate-controller
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "{{ include "ports.prometheus" . }}"
+    spec:
+      {{- with .Values.servers.climate.controller.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+      - name: config
+        configMap:
+          name: proteus-config
+      containers:
+      - name: climate-controller
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
+        args:
+        - apps
+        - climate
+        - controller
+        env:
+          {{ include "proteus.credentialsEnv" . | nindent 10 }}
+          {{ toYaml .Values.commonEnv | nindent 10 }}
+        ports:
+          - name: metrics
+            containerPort: {{ include "ports.prometheus" . }}
+          - name: healthz
+            containerPort: {{ include "ports.healthz" . }}
+        {{- with .Values.servers.climate.controller.livenessProbe }}
+        livenessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.servers.climate.controller.resources }}
+        resources:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        volumeMounts:
+        - name: config
+          mountPath: /etc/proteus
+{{- end }}
