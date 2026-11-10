@@ -173,6 +173,16 @@ entries:
     version: 0.2.0
   github-stars:
   - apiVersion: v2
+    appVersion: 0.4.1
+    created: "2026-11-10T20:51:42.195604607Z"
+    description: receive Star events from GitHub and post them to Slack
+    digest: f3df91e076f147450fd69dc5bd1a9377ae373ec79b997fc5fa2e766796a4ef63
+    name: github-stars
+    type: application
+    urls:
+    - https://github.com/clambin/helm-charts/releases/download/github-stars-0.1.1/github-stars-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
     appVersion: 0.4.0
     created: "2026-07-29T21:24:19.967763709Z"
     description: receive Star events from GitHub and post them to Slack
@@ -334,4 +344,4 @@ entries:
     urls:
     - https://github.com/clambin/helm-charts/releases/download/proteus-0.7.0/proteus-0.7.0.tgz
     version: 0.7.0
-generated: "2026-10-23T19:56:06.344294221Z"
+generated: "2026-11-10T20:51:42.195683144Z"
